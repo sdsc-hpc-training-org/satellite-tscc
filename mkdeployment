@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# mkdeployment 
+# produce a deployment in directory called deployment.
+
+set -u
+umask 0022
+
+# satellite user has a cron job to create the dynconf file
+# this shouldn't be root (doesn't need full root privs)
+# nor should it be the httpd user (httpd could escalate to root by rewriting its config)
+SATELLITE_USER=satellite
+
+# do stuff
+cd $( dirname $0 )
+
+# just in case someone forgot to do this.
+git submodule update --init --remote
+
+if [[ -e deployment ]]; then
+  echo "Directory 'deployment' already exists. Remove it and try again." 1>&2
+  exit 2
+fi
+mkdir deployment
+for D in bin cgi var dynconf html html/static etc; do
+  mkdir deployment/${D}
+done
+
+if [[ ${UID} -eq 0 ]]; then
+  chown ${SATELLITE_USER}:root deployment/dynconf
+fi
+
+# set perms
+chmod 700 deployment/dynconf
+
+# copy upstream
+cp satellite-upstream/bin/* deployment/bin/
+cp satellite-upstream/cgi/* deployment/cgi/
+cp -r satellite-upstream/html/* deployment/html/
+cp satellite-upstream/var/* deployment/var/
+cp satellite-upstream/etc/* deployment/etc/
+
+# copy customizations
+for I in $( cd customizations; ls ); do
+  cp -rf customizations/${I}/* deployment/${I}
+done
+
+
+echo "Success!"

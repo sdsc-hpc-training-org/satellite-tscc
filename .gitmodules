@@ -1,0 +1,3 @@
+[submodule "satellite-upstream"]
+	path = satellite-upstream
+	url = https://github.com/sdsc-hpc-training-org/satellite.git
