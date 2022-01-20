@@ -114,6 +114,6 @@ if ( lc($newbodyhash) ne lc($currentbodyhash) )
     open(my $ofh, ">", $httpdstubfile) or die("Can't write to $httpdstubfile: $!");
     print $ofh ($newbody);
     close($ofh);
-    system("killall -USR1 httpd apache2 2>/dev/null");
+    system("sudo killall -USR1 httpd apache2 2>/dev/null");
 }
 
